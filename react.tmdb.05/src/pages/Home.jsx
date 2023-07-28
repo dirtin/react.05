@@ -8,28 +8,34 @@ const apiKey = import.meta.env.VITE_API_KEY;
 const language = 'pt-BR';
 
 const Home = () => {
-  const [topMovies, setTopMovies] = useState([]);
+  const [favoriteMovies, setFavoriteMovies] = useState([]);
 
-  const getTopRatedMovies = async (url) => {
-    const res = await fetch(url);
-    const data = await res.json();
-    setTopMovies(data.results);
+  const getFavoriteMovies = async () => {
+    const moviePromises = favoriteMovieIds.map(async (id) => {
+      const url = `${moviesURL}${id}?${apiKey}&language=${language}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      return data;
+    });
+
+    const favoriteMoviesData = await Promise.all(moviePromises);
+    setFavoriteMovies(favoriteMoviesData);
   };
 
   useEffect(() => {
-    const topRatedUrl = `${moviesURL}top_rated?${apiKey}&language=pt-BR`;
-    console.log(topRatedUrl);
-    getTopRatedMovies(topRatedUrl);
+    // Replace `favoriteMovieIds` with an array containing your favorite movie IDs
+    const favoriteMovieIds = [123, 456, 789];
+    getFavoriteMovies(favoriteMovieIds);
   }, []);
 
-  console.log(topMovies);
+  console.log(favoriteMovies);
 
   return (
     <div className="container">
-      <h2 className="title">Melhores filmes, porque  não consegui colocar os meus preferidos!</h2>
+      <h2 className="title">Meus filmes favoritos</h2>
       <div className="movies-container">
-        {topMovies.length > 0 &&
-          topMovies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
+        {favoriteMovies.length > 0 &&
+          favoriteMovies.map((movie) => <MovieCard key={movie.id} movie={movie} />)}
       </div>
     </div>
   );
